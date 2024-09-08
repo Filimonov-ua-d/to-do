@@ -53,7 +53,7 @@ This endpoint is used to authenticate users. The following request body is expec
 If the provided credentials are correct, the server will respond with a JWT token:
 
 ##### Example Response: 
-```
+```json
 {
 	"token": "eyJhbGcimYmY5Zjk3YjUifXgw6yb6If9aB8imGhxMOjsk"
 } 
@@ -64,7 +64,7 @@ If the provided credentials are correct, the server will respond with a JWT toke
 This endpoint is used to create task. The following request body is expected:
 
 #### Example Input
-```
+```json
 {
     "title": "test2",
     "description": "test2"
@@ -98,7 +98,7 @@ value 'Bearer <JWT TOKEN>'
 ```
 
 ##### Example Response: 
-```
+```json
 200 OK
 
 [
@@ -129,7 +129,7 @@ value 'Bearer <JWT TOKEN>'
 ```
 
 ##### Example Response: 
-```
+```json
 200 OK
 
 {
@@ -152,7 +152,7 @@ value 'Bearer <JWT TOKEN>'
 ```
 
 #### Body
-```
+```json
 {
     "id": 1,
     "title": "test",
@@ -162,7 +162,7 @@ value 'Bearer <JWT TOKEN>'
 ```
 
 ##### Example Response: 
-```
+```json
 200 OK
 ```
 
@@ -178,6 +178,6 @@ value 'Bearer <JWT TOKEN>'
 ```
 
 ##### Example Response: 
-```
+```json
 200 OK
 ```
