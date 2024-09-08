@@ -1,0 +1,13 @@
+port: 8080
+
+postgres:
+  user: "postgres" 
+  password: "postgres"
+  dbname: "test_task"
+  sslmode: "disable"
+  host: "localhost"
+  port: "5432"
+auth:
+  hash_salt: "hash_salt"
+  signing_key: "signing_key"
+  token_ttl: 43200
