@@ -16,7 +16,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
 )
 
@@ -29,20 +28,6 @@ func NewApp() *App {
 
 	var db *sqlx.DB
 	var err error
-
-	loggerUC := zerolog.New(os.Stdout).
-		With().
-		Timestamp().
-		Str("Layer:", "usecase").
-		Str("Service:", "Home_finances").
-		Logger()
-
-	loggerRepo := zerolog.New(os.Stdout).
-		With().
-		Timestamp().
-		Str("Layer:", "repository").
-		Str("Service:", "Home_finances").
-		Logger()
 
 	user := viper.GetString("postgres.user")
 	password := viper.GetString("postgres.password")
@@ -58,12 +43,11 @@ func NewApp() *App {
 		log.Panic(err)
 	}
 
-	pkgRepo := postgres.NewPkgRepository(db, &loggerRepo)
+	pkgRepo := postgres.NewPkgRepository(db)
 
 	return &App{
 		pkgUC: pkgUC.NewPkgUseCase(
 			pkgRepo,
-			&loggerUC,
 			[]byte(viper.GetString("auth.signing_key")),
 			viper.GetString("auth.hash_salt"),
 			viper.GetDuration("auth.token_ttl"),

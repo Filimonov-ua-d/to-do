@@ -10,7 +10,6 @@ import (
 )
 
 func main() {
-
 	if err := config.Init(); err != nil {
 		log.Fatalf("%s", err.Error())
 	}

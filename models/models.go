@@ -1,14 +1,14 @@
 package models
 
 type User struct {
-	Id       int
-	Username string
-	Password string
+	Id       int    `json:"id"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
-type Image struct {
-	Id        int
-	UserId    int
-	ImagePath string
-	ImageUrl  string
+type Task struct {
+	Id          int    `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	IsDone      bool   `json:"is_done" db:"is_done"`
 }

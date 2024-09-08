@@ -1,32 +1,26 @@
 package http
 
 import (
-	"errors"
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/Filimonov-ua-d/to-do/models"
 	"github.com/Filimonov-ua-d/to-do/pkg"
 	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog"
 )
 
 type Handler struct {
 	useCase pkg.UseCase
-	logger  *zerolog.Logger
 }
 
 type LoginResponse struct {
 	Token string `json:"token"`
 }
 
-type getImagesResponse struct {
-	Images []*Image
-}
-
-func NewHandler(useCase pkg.UseCase, logger *zerolog.Logger) *Handler {
+func NewHandler(useCase pkg.UseCase) *Handler {
 	return &Handler{
 		useCase: useCase,
-		logger:  logger,
 	}
 }
 
@@ -34,11 +28,7 @@ func (h *Handler) Login(c *gin.Context) {
 	user := new(User)
 
 	if err := c.ShouldBindJSON(&user); err != nil {
-
-		h.logger.Error().
-			Err(err).
-			Str("Func:", "Login")
-
+		fmt.Println(err)
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
@@ -56,63 +46,79 @@ func (h *Handler) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, LoginResponse{Token: token})
 }
 
-func (h *Handler) UploadPicture(c *gin.Context) {
+func (h *Handler) CreateTask(c *gin.Context) {
+	task := models.Task{}
 
-	file, err := c.FormFile("file")
+	if err := c.ShouldBindJSON(&task); err != nil {
+		c.String(http.StatusBadRequest, err.Error(), err)
+		return
+	}
+
+	err := h.useCase.CreateTask(c.Request.Context(), task)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.String(http.StatusInternalServerError, err.Error(), err)
 		return
 	}
 
-	filename := file.Filename
-	if err := c.SaveUploadedFile(file, "uploads/"+filename); err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+	c.Status(http.StatusCreated)
+}
+
+func (h *Handler) GetTasks(c *gin.Context) {
+	tasks, err := h.useCase.GetTasks(c.Request.Context())
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error(), err)
 		return
 	}
 
-	user := c.MustGet(pkg.CtxUserKey).(*models.User)
+	c.JSON(http.StatusOK, tasks)
+}
 
-	if err := h.useCase.UploadPicture(c.Request.Context(), user, filename); err != nil {
+func (h *Handler) GetTaskById(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
 
-		h.logger.Error().
-			Err(err).
-			Str("Func:", "UploadPicture")
+	task, err := h.useCase.GetTaskById(c.Request.Context(), id)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error(), err)
+		return
+	}
 
-		if errors.Is(err, pkg.ErrFileExist) {
-			c.JSON(http.StatusOK, &UploadResponse{
-				Error: ApiError{
-					ErrorCode:        1,
-					ErrorDescription: err.Error(),
-				},
-			})
-			return
-		}
-		c.AbortWithStatus(http.StatusInternalServerError)
+	c.JSON(http.StatusOK, task)
+}
+
+func (h *Handler) UpdateTask(c *gin.Context) {
+	task := models.Task{}
+
+	if err := c.ShouldBindJSON(&task); err != nil {
+		fmt.Println(err)
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err := h.useCase.UpdateTask(c.Request.Context(), task)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error(), err)
 		return
 	}
 
 	c.Status(http.StatusOK)
-
 }
 
-func (h *Handler) GetImages(c *gin.Context) {
-
-	user := c.MustGet(pkg.CtxUserKey).(*models.User)
-
-	im, err := h.useCase.GetImages(c.Request.Context(), user)
+func (h *Handler) DeleteTask(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-
-		h.logger.Error().
-			Err(err).
-			Str("Func:", "GetImages")
-
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	c.JSON(http.StatusOK, &getImagesResponse{
-		Images: toModelImages(im),
-	},
-	)
+	err = h.useCase.DeleteTask(c.Request.Context(), id)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error(), err)
+		return
+	}
 
+	c.Status(http.StatusOK)
 }

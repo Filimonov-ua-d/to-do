@@ -2,21 +2,19 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Filimonov-ua-d/to-do/models"
 	"github.com/jmoiron/sqlx"
-	"github.com/rs/zerolog"
 )
 
 type PkgRepository struct {
-	DB     *sqlx.DB
-	logger *zerolog.Logger
+	DB *sqlx.DB
 }
 
-func NewPkgRepository(db *sqlx.DB, logger *zerolog.Logger) *PkgRepository {
+func NewPkgRepository(db *sqlx.DB) *PkgRepository {
 	return &PkgRepository{
-		DB:     db,
-		logger: logger,
+		DB: db,
 	}
 }
 
@@ -27,11 +25,7 @@ func (pr *PkgRepository) GetUser(ctx context.Context, username, password string)
 	selectSQL := "SELECT id, username, password_hash FROM users WHERE username=$1 AND password_hash=$2 LIMIT 1"
 	err = pr.DB.QueryRowContext(ctx, selectSQL, username, password).Scan(&user.Id, &user.Username, &user.Password)
 	if err != nil {
-
-		pr.logger.Error().
-			Err(err).
-			Str("Func:", "GetUser")
-
+		fmt.Println(err)
 		return nil, err
 	}
 
@@ -39,61 +33,68 @@ func (pr *PkgRepository) GetUser(ctx context.Context, username, password string)
 
 }
 
-func (pr *PkgRepository) ImageExists(c context.Context, filename string) (bool, error) {
-
-	var count int
-	err := pr.DB.QueryRowxContext(c, "SELECT COUNT (*) FROM images WHERE image_path = $1", filename).Scan(&count)
-
+func (pr *PkgRepository) CreateTask(ctx context.Context, t models.Task) (err error) {
+	insertSQL := "INSERT INTO tasks (title, description, is_done) VALUES ($1, $2, $3)"
+	_, err = pr.DB.ExecContext(ctx, insertSQL, t.Title, t.Description, t.IsDone)
 	if err != nil {
-		pr.logger.Error().
-			Err(err).
-			Str("Func:", "ImageExists")
-		return false, err
+		fmt.Println(err)
+		return err
 	}
 
-	return count > 0, nil
+	return nil
 }
 
-func (pr *PkgRepository) UploadPicture(c context.Context, i *models.Image) (err error) {
-
-	insertSQL := "insert into images (user_id,image_path,image_url) VALUES (:user_id,:image_path,:image_url)"
-
-	var image = toDBImage(i)
-
-	_, err = pr.DB.NamedExec(insertSQL, image)
+func (pr *PkgRepository) GetTasks(ctx context.Context) (tasks []*models.Task, err error) {
+	rows, err := pr.DB.QueryxContext(ctx, "SELECT id, title, description, is_done FROM tasks")
 	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
 
-		pr.logger.Error().
-			Err(err).
-			Str("Func:", "UploadPicture")
+	for rows.Next() {
+		task := &models.Task{}
+		err = rows.StructScan(task)
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+		tasks = append(tasks, task)
+	}
 
+	return tasks, nil
+}
+
+func (pr *PkgRepository) GetTaskById(ctx context.Context, id int) (t *models.Task, err error) {
+	task := new(models.Task)
+
+	selectSQL := "SELECT id, title, description, is_done FROM tasks WHERE id=$1 LIMIT 1"
+	err = pr.DB.QueryRowxContext(ctx, selectSQL, id).StructScan(task)
+	if err != nil {
+		fmt.Println(err)
 		return
 	}
 
-	return
-
+	return task, nil
 }
 
-func (pr *PkgRepository) GetImages(ctx context.Context) (im []*models.Image, err error) {
-
-	selectSQL := "SELECT * FROM images"
-
-	var images []*Image
-
-	if err = pr.DB.Select(&images, selectSQL); err != nil {
-
-		pr.logger.Error().
-			Err(err).
-			Str("Func:", "GetImages")
-
-		return
+func (pr *PkgRepository) UpdateTask(ctx context.Context, t models.Task) (err error) {
+	updateSQL := "UPDATE tasks SET title=$1, description=$2, is_done=$3 WHERE id=$4"
+	_, err = pr.DB.ExecContext(ctx, updateSQL, t.Title, t.Description, t.IsDone, t.Id)
+	if err != nil {
+		fmt.Println(err)
+		return err
 	}
 
-	for _, v := range images {
-		im = append(im, toModelImage(v))
+	return nil
+}
 
+func (pr *PkgRepository) DeleteTask(ctx context.Context, id int) (err error) {
+	deleteSQL := "DELETE FROM tasks WHERE id=$1"
+	_, err = pr.DB.ExecContext(ctx, deleteSQL, id)
+	if err != nil {
+		fmt.Println(err)
+		return err
 	}
 
-	return
-
+	return nil
 }

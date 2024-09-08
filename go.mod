@@ -1,4 +1,4 @@
-module github.com/Filimonov-ua-d/test_task
+module github.com/Filimonov-ua-d/to-do
 
 go 1.19
 

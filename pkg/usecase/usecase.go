@@ -9,7 +9,6 @@ import (
 	"github.com/Filimonov-ua-d/to-do/models"
 	"github.com/Filimonov-ua-d/to-do/pkg"
 	"github.com/dgrijalva/jwt-go/v4"
-	"github.com/rs/zerolog"
 )
 
 type AuthClaims struct {
@@ -19,7 +18,6 @@ type AuthClaims struct {
 
 type PkgUseCase struct {
 	PkgRepo        pkg.Repository
-	logger         *zerolog.Logger
 	signingKey     []byte
 	expireDuration time.Duration
 	hashSalt       string
@@ -27,14 +25,12 @@ type PkgUseCase struct {
 }
 
 func NewPkgUseCase(PkgRepo pkg.Repository,
-	logger *zerolog.Logger,
 	signingKey []byte,
 	hashSalt string,
 	tokenTTLSeconds time.Duration,
 	port string) *PkgUseCase {
 	return &PkgUseCase{
 		PkgRepo:        PkgRepo,
-		logger:         logger,
 		signingKey:     signingKey,
 		expireDuration: time.Second * tokenTTLSeconds,
 		hashSalt:       hashSalt,
@@ -76,11 +72,7 @@ func (p *PkgUseCase) ParseToken(ctx context.Context, accessToken string) (*model
 	})
 
 	if err != nil {
-
-		p.logger.Error().
-			Err(err).
-			Str("Func:", "ParseToken")
-
+		fmt.Println(err)
 		return nil, err
 	}
 
@@ -91,50 +83,22 @@ func (p *PkgUseCase) ParseToken(ctx context.Context, accessToken string) (*model
 	return nil, pkg.ErrInvalidAccessToken
 }
 
-func (p *PkgUseCase) UploadPicture(ctx context.Context, u *models.User, filename string) error {
-	dbUser, err := p.PkgRepo.GetUser(ctx, u.Username, u.Password)
-	if err != nil {
-		p.logger.Error().
-			Err(err).
-			Str("Func:", "UploadPicture")
-
-		return err
-	}
-
-	exists, err := p.PkgRepo.ImageExists(ctx, "uploads/"+filename)
-	if err != nil {
-		p.logger.Error().
-			Err(err).
-			Str("Func:", "UploadPicture")
-
-		return err
-	}
-
-	if exists {
-		return fmt.Errorf("Error insert file %s.%w", filename, pkg.ErrFileExist)
-	}
-
-	im := &models.Image{
-		UserId:    dbUser.Id,
-		ImagePath: "uploads/" + filename,
-		ImageUrl:  "http://localhost:" + p.port + "/uploads/" + filename,
-	}
-
-	err = p.PkgRepo.UploadPicture(ctx, im)
-
-	p.logger.Error().
-		Err(err).
-		Str("Func:", "UploadPicture")
-
-	return err
+func (p *PkgUseCase) CreateTask(ctx context.Context, task models.Task) error {
+	return p.PkgRepo.CreateTask(ctx, task)
 }
 
-func (p *PkgUseCase) GetImages(ctx context.Context, u *models.User) ([]*models.Image, error) {
-	c, err := p.PkgRepo.GetImages(ctx)
+func (p *PkgUseCase) GetTasks(ctx context.Context) ([]*models.Task, error) {
+	return p.PkgRepo.GetTasks(ctx)
+}
 
-	p.logger.Error().
-		Err(err).
-		Str("Func:", "GetImages")
+func (p *PkgUseCase) GetTaskById(ctx context.Context, id int) (*models.Task, error) {
+	return p.PkgRepo.GetTaskById(ctx, id)
+}
 
-	return c, err
+func (p *PkgUseCase) UpdateTask(ctx context.Context, task models.Task) error {
+	return p.PkgRepo.UpdateTask(ctx, task)
+}
+
+func (p *PkgUseCase) DeleteTask(ctx context.Context, id int) error {
+	return p.PkgRepo.DeleteTask(ctx, id)
 }
