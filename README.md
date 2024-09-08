@@ -1,37 +1,28 @@
-# Test_task
-This is a simple Golang application with PostgreSQL database and migrations using Goose.
+# to-do app
+This is a simple Golang application with PostgreSQL database.
 
 ## Installation
 To start the application, you should clone the repository and install the required dependencies:
 
 ```bash 
-$ git clone https://github.com/Filimonov-ua-d/test_task.git
+$ git clone https://github.com/Filimonov-ua-d/to-do.git
 ```
 ```
-$ cd test_task
+$ cd to-do
 ```
 ```
 $ go mod tidy
 ```
-```
-$ go install github.com/pressly/goose/v3/cmd/goose@latest
-```
 
 Next, you'll need to set up the database. Create a new PostgreSQL database and user, and grant the user permission to access the database. You can do this using the psql command-line tool, or any other PostgreSQL management tool:
 ```
-CREATE DATABASE test_task;
+CREATE DATABASE to-do;
 ```
 ```
-CREATE USER test_task_user WITH PASSWORD 'your_password';
+CREATE USER to_do_user WITH PASSWORD 'your_password';
 ```
 ```
-GRANT ALL PRIVILEGES ON DATABASE test_task TO test_task_user;
-```
-
-When the database is up and running, you need to apply the migrations using the Goose CLI tool.
-To do that, run the following command from the project's root directory:
-```bash
-goose -dir ./ postgres "user=postgres password=postgres dbname=test_task sslmode=disable" up
+GRANT ALL PRIVILEGES ON DATABASE to-do TO to_do_user;
 ```
 
 ## Usage
@@ -64,23 +55,20 @@ If the provided credentials are correct, the server will respond with a JWT toke
 ##### Example Response: 
 ```
 {
-	"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NzEwMzgyMjQuNzQ0MzI0MiwidXNlc
-  iI6eyJJRCI6IjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsIlVzZXJuYW1lIjoiemhhc2hrZXZ5Y2giLCJQYXNzd
-  29yZCI6IjQyODYwMTc5ZmFiMTQ2YzZiZDAyNjlkMDViZTM0ZWNmYmY5Zjk3YjUifX0.3dsyKJQ-HZJxdvBMui0Mz
-  gw6yb6If9aB8imGhxMOjsk"
+	"token": "eyJhbGcimYmY5Zjk3YjUifXgw6yb6If9aB8imGhxMOjsk"
 } 
 ```
 
-### POST /upload-images
+### POST /create_task
 
-This endpoint is used to upload images. The following request body is expected:
+This endpoint is used to create task. The following request body is expected:
 
 #### Example Input
 ```
-form-data: file
-```
-```
-file: image file
+{
+    "title": "test2",
+    "description": "test2"
+}
 ```
 
 Also, you need to add a header with the
@@ -95,12 +83,10 @@ value 'Bearer <JWT TOKEN>'
 
 ##### Example Response: 
 ```
-{
-  "url": "http://localhost:8080/images/<filename>"
-}
+201 CREATED
 ```
 
-### GET /images
+### GET /tasks
 You need to add a header with the
 
 #### Example Input
@@ -113,14 +99,85 @@ value 'Bearer <JWT TOKEN>'
 
 ##### Example Response: 
 ```
+200 OK
+
+[
+    {
+        "id": 1,
+        "title": "test",
+        "description": "",
+        "is_done": true
+    },
+    {
+        "id": 3,
+        "title": "test2",
+        "description": "test2",
+        "is_done": false
+    }
+]
+```
+
+### GET /tasks/:id
+You need to add a header with the
+
+#### Example Input
+```
+key 'Authorization'
+``` 
+```
+value 'Bearer <JWT TOKEN>'
+```
+
+##### Example Response: 
+```
+200 OK
+
 {
-    "Images": [
-        {
-            "id": 1,
-            "user_id": 1,
-            "image_path": "uploads/1234.png",
-            "image_url": "http://localhost:8080/uploads/1234.png"
-        }
-    ]
+    "id": 1,
+    "title": "test",
+    "description": "",
+    "is_done": false
 }
+```
+
+### PUT /tasks/:id
+You need to add a header with the
+
+#### Example Input
+```
+key 'Authorization'
+``` 
+```
+value 'Bearer <JWT TOKEN>'
+```
+
+#### Body
+```
+{
+    "id": 1,
+    "title": "test",
+    "desctiption": "test",
+    "is_done": true
+}
+```
+
+##### Example Response: 
+```
+200 OK
+```
+
+### DELETE /tasks/:id
+You need to add a header with the
+
+#### Example Input
+```
+key 'Authorization'
+``` 
+```
+value 'Bearer <JWT TOKEN>'
+```
+
+##### Example Response: 
+```
+200 OK
 ```
