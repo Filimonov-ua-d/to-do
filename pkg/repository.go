@@ -8,9 +8,6 @@ import (
 
 type Repository interface {
 	GetUser(ctx context.Context, username, password string) (*models.User, error)
-	CreateTask(ctx context.Context, t models.Task) (err error)
-	GetTasks(ctx context.Context) ([]*models.Task, error)
-	GetTaskById(ctx context.Context, id int) (*models.Task, error)
-	UpdateTask(ctx context.Context, t models.Task) (err error)
-	DeleteTask(ctx context.Context, id int) (err error)
+	Register(ctx context.Context, user models.User) error
+	UserExist(ctx context.Context, username string) (bool, error)
 }
