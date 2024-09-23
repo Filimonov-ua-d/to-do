@@ -38,7 +38,7 @@ func NewPkgUseCase(PkgRepo pkg.Repository,
 	}
 }
 
-func (p *PkgUseCase) Login(ctx context.Context, username, password string) (string, error) {
+func (p *PkgUseCase) Login(ctx context.Context, username, password, email string) (string, error) {
 
 	pwd := sha1.New()
 	pwd.Write([]byte(password))
@@ -66,7 +66,7 @@ func (p *PkgUseCase) ParseToken(ctx context.Context, accessToken string) (*model
 
 	token, err := jwt.ParseWithClaims(accessToken, &AuthClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return p.signingKey, nil
 	})
@@ -83,22 +83,35 @@ func (p *PkgUseCase) ParseToken(ctx context.Context, accessToken string) (*model
 	return nil, pkg.ErrInvalidAccessToken
 }
 
-func (p *PkgUseCase) CreateTask(ctx context.Context, task models.Task) error {
-	return p.PkgRepo.CreateTask(ctx, task)
-}
+func (p *PkgUseCase) Register(ctx context.Context, user *models.User) (string, error) {
 
-func (p *PkgUseCase) GetTasks(ctx context.Context) ([]*models.Task, error) {
-	return p.PkgRepo.GetTasks(ctx)
-}
+	pwd := sha1.New()
+	pwd.Write([]byte(user.Password))
+	pwd.Write([]byte(p.hashSalt))
+	user.Password = fmt.Sprintf("%x", pwd.Sum(nil))
 
-func (p *PkgUseCase) GetTaskById(ctx context.Context, id int) (*models.Task, error) {
-	return p.PkgRepo.GetTaskById(ctx, id)
-}
+	exists, err := p.PkgRepo.UserExist(ctx, user.Username)
+	if err != nil {
+		return "", err
+	}
 
-func (p *PkgUseCase) UpdateTask(ctx context.Context, task models.Task) error {
-	return p.PkgRepo.UpdateTask(ctx, task)
-}
+	if exists {
+		return "", pkg.ErrUserAlreadyExists
+	}
 
-func (p *PkgUseCase) DeleteTask(ctx context.Context, id int) error {
-	return p.PkgRepo.DeleteTask(ctx, id)
+	err = p.PkgRepo.Register(ctx, *user)
+	if err != nil {
+		return "", err
+	}
+
+	claims := AuthClaims{
+		User: user,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: jwt.At(time.Now().Add(p.expireDuration)),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return token.SignedString(p.signingKey)
 }

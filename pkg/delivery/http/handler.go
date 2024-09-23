@@ -3,7 +3,6 @@ package http
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/Filimonov-ua-d/to-do/models"
 	"github.com/Filimonov-ua-d/to-do/pkg"
@@ -14,10 +13,6 @@ type Handler struct {
 	useCase pkg.UseCase
 }
 
-type LoginResponse struct {
-	Token string `json:"token"`
-}
-
 func NewHandler(useCase pkg.UseCase) *Handler {
 	return &Handler{
 		useCase: useCase,
@@ -25,100 +20,36 @@ func NewHandler(useCase pkg.UseCase) *Handler {
 }
 
 func (h *Handler) Login(c *gin.Context) {
-	user := new(User)
+	user := User{}
 
 	if err := c.ShouldBindJSON(&user); err != nil {
-		fmt.Println(err)
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	token, err := h.useCase.Login(c.Request.Context(), user.Username, user.Password)
+	token, err := h.useCase.Login(c.Request.Context(), user.Username, user.Password, user.Email)
 	if err != nil {
-		if err == pkg.ErrUserNotFound {
-			c.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, ErrorResponse{"message": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, LoginResponse{Token: token})
 }
 
-func (h *Handler) CreateTask(c *gin.Context) {
-	task := models.Task{}
+func (h *Handler) Register(c *gin.Context) {
+	user := &models.User{}
 
-	if err := c.ShouldBindJSON(&task); err != nil {
-		c.String(http.StatusBadRequest, err.Error(), err)
-		return
-	}
-
-	err := h.useCase.CreateTask(c.Request.Context(), task)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error(), err)
-		return
-	}
-
-	c.Status(http.StatusCreated)
-}
-
-func (h *Handler) GetTasks(c *gin.Context) {
-	tasks, err := h.useCase.GetTasks(c.Request.Context())
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error(), err)
-		return
-	}
-
-	c.JSON(http.StatusOK, tasks)
-}
-
-func (h *Handler) GetTaskById(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-
-	task, err := h.useCase.GetTaskById(c.Request.Context(), id)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error(), err)
-		return
-	}
-
-	c.JSON(http.StatusOK, task)
-}
-
-func (h *Handler) UpdateTask(c *gin.Context) {
-	task := models.Task{}
-
-	if err := c.ShouldBindJSON(&task); err != nil {
+	if err := c.ShouldBindJSON(&user); err != nil {
 		fmt.Println(err)
-		c.String(http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, ErrorResponse{"message": err.Error()})
 		return
 	}
 
-	err := h.useCase.UpdateTask(c.Request.Context(), task)
+	token, err := h.useCase.Register(c.Request.Context(), user)
 	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error(), err)
+		c.JSON(http.StatusInternalServerError, ErrorResponse{"message": err.Error()})
 		return
 	}
 
-	c.Status(http.StatusOK)
-}
-
-func (h *Handler) DeleteTask(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-
-	err = h.useCase.DeleteTask(c.Request.Context(), id)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error(), err)
-		return
-	}
-
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, LoginResponse{Token: token})
 }

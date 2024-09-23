@@ -18,12 +18,12 @@ func NewPkgRepository(db *sqlx.DB) *PkgRepository {
 	}
 }
 
-func (pr *PkgRepository) GetUser(ctx context.Context, username, password string) (u *models.User, err error) {
+func (p *PkgRepository) GetUser(ctx context.Context, email, password string) (u *models.User, err error) {
 
 	user := new(User)
 
-	selectSQL := "SELECT id, username, password_hash FROM users WHERE username=$1 AND password_hash=$2 LIMIT 1"
-	err = pr.DB.QueryRowContext(ctx, selectSQL, username, password).Scan(&user.Id, &user.Username, &user.Password)
+	selectSQL := "SELECT id, username, email, password_hash FROM users WHERE email=$1 AND password_hash=$2 LIMIT 1"
+	err = p.DB.QueryRowContext(ctx, selectSQL, email, password).Scan(&user.Id, &user.Username, &user.Email, &user.Password)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -33,68 +33,19 @@ func (pr *PkgRepository) GetUser(ctx context.Context, username, password string)
 
 }
 
-func (pr *PkgRepository) CreateTask(ctx context.Context, t models.Task) (err error) {
-	insertSQL := "INSERT INTO tasks (title, description, is_done) VALUES ($1, $2, $3)"
-	_, err = pr.DB.ExecContext(ctx, insertSQL, t.Title, t.Description, t.IsDone)
+func (p *PkgRepository) Register(ctx context.Context, user models.User) (err error) {
+	_, err = p.DB.ExecContext(ctx, "INSERT INTO users (username, password_hash, email) VALUES ($1, $2, $3)", user.Username, user.Password, user.Email)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
-
 	return nil
 }
 
-func (pr *PkgRepository) GetTasks(ctx context.Context) (tasks []*models.Task, err error) {
-	rows, err := pr.DB.QueryxContext(ctx, "SELECT id, title, description, is_done FROM tasks")
+func (p *PkgRepository) UserExist(ctx context.Context, username string) (bool, error) {
+	var count int
+	err := p.DB.GetContext(ctx, &count, "SELECT COUNT(*) FROM users WHERE username=$1", username)
 	if err != nil {
-		fmt.Println(err)
-		return nil, err
+		return false, err
 	}
-
-	for rows.Next() {
-		task := &models.Task{}
-		err = rows.StructScan(task)
-		if err != nil {
-			fmt.Println(err)
-			return nil, err
-		}
-		tasks = append(tasks, task)
-	}
-
-	return tasks, nil
-}
-
-func (pr *PkgRepository) GetTaskById(ctx context.Context, id int) (t *models.Task, err error) {
-	task := new(models.Task)
-
-	selectSQL := "SELECT id, title, description, is_done FROM tasks WHERE id=$1 LIMIT 1"
-	err = pr.DB.QueryRowxContext(ctx, selectSQL, id).StructScan(task)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	return task, nil
-}
-
-func (pr *PkgRepository) UpdateTask(ctx context.Context, t models.Task) (err error) {
-	updateSQL := "UPDATE tasks SET title=$1, description=$2, is_done=$3 WHERE id=$4"
-	_, err = pr.DB.ExecContext(ctx, updateSQL, t.Title, t.Description, t.IsDone, t.Id)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-
-	return nil
-}
-
-func (pr *PkgRepository) DeleteTask(ctx context.Context, id int) (err error) {
-	deleteSQL := "DELETE FROM tasks WHERE id=$1"
-	_, err = pr.DB.ExecContext(ctx, deleteSQL, id)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-
-	return nil
+	return count > 0, nil
 }

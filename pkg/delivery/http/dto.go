@@ -3,6 +3,7 @@ package http
 type User struct {
 	Id       int    `json:"-"`
 	Username string `json:"username"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
@@ -11,6 +12,8 @@ type ApiError struct {
 	ErrorDescription string `json:"error_description"`
 }
 
-type UploadResponse struct {
-	Error ApiError `json:"error"`
+type ErrorResponse map[string]string
+
+type LoginResponse struct {
+	Token string `json:"token"`
 }
