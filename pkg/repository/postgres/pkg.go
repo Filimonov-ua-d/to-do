@@ -18,12 +18,12 @@ func NewPkgRepository(db *sqlx.DB) *PkgRepository {
 	}
 }
 
-func (p *PkgRepository) GetUser(ctx context.Context, username, password string) (u *models.User, err error) {
+func (p *PkgRepository) GetUser(ctx context.Context, email, password string) (u *models.User, err error) {
 
 	user := new(User)
 
-	selectSQL := "SELECT id, username, password_hash FROM users WHERE username=$1 AND password_hash=$2 LIMIT 1"
-	err = p.DB.QueryRowContext(ctx, selectSQL, username, password).Scan(&user.Id, &user.Username, &user.Password)
+	selectSQL := "SELECT id, username, email, password_hash FROM users WHERE email=$1 AND password_hash=$2 LIMIT 1"
+	err = p.DB.QueryRowContext(ctx, selectSQL, email, password).Scan(&user.Id, &user.Username, &user.Email, &user.Password)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -34,7 +34,7 @@ func (p *PkgRepository) GetUser(ctx context.Context, username, password string) 
 }
 
 func (p *PkgRepository) Register(ctx context.Context, user models.User) (err error) {
-	_, err = p.DB.ExecContext(ctx, "INSERT INTO users (username, password_hash) VALUES ($1, $2)", user.Username, user.Password)
+	_, err = p.DB.ExecContext(ctx, "INSERT INTO users (username, password_hash, email) VALUES ($1, $2, $3)", user.Username, user.Password, user.Email)
 	if err != nil {
 		return err
 	}

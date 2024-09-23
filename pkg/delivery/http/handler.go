@@ -27,7 +27,7 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := h.useCase.Login(c.Request.Context(), user.Username, user.Password)
+	token, err := h.useCase.Login(c.Request.Context(), user.Username, user.Password, user.Email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{"message": err.Error()})
 		return
