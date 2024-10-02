@@ -119,3 +119,7 @@ func (p *PkgUseCase) Register(ctx context.Context, user *models.User) (string, e
 func (p *PkgUseCase) UpdateProfile(ctx context.Context, user *models.User) error {
 	return p.PkgRepo.UpdateProfile(ctx, user)
 }
+
+func (p *PkgUseCase) ContactUs(ctx context.Context, contact models.Contact) error {
+	return p.PkgRepo.ContactUs(ctx, contact)
+}

@@ -11,4 +11,5 @@ type Repository interface {
 	Register(ctx context.Context, user models.User) error
 	UserExist(ctx context.Context, username string) (bool, error)
 	UpdateProfile(ctx context.Context, user *models.User) error
+	ContactUs(ctx context.Context, contact models.Contact) error
 }

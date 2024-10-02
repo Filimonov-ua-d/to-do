@@ -57,3 +57,12 @@ func (p *PkgRepository) UpdateProfile(ctx context.Context, user *models.User) er
 	}
 	return nil
 }
+
+func (p *PkgRepository) ContactUs(ctx context.Context, contact models.Contact) error {
+	_, err := p.DB.ExecContext(ctx, "INSERT INTO contact_us (name, email, message, phone, messanger, course) VALUES ($1, $2, $3, $4, $5, $6)",
+		contact.Name, contact.Email, contact.Message, contact.Phone, contact.Messanger, contact.Course)
+	if err != nil {
+		return err
+	}
+	return nil
+}
