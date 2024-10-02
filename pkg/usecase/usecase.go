@@ -115,3 +115,7 @@ func (p *PkgUseCase) Register(ctx context.Context, user *models.User) (string, e
 
 	return token.SignedString(p.signingKey)
 }
+
+func (p *PkgUseCase) UpdateProfile(ctx context.Context, user *models.User) error {
+	return p.PkgRepo.UpdateProfile(ctx, user)
+}
