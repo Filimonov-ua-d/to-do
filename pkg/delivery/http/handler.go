@@ -53,3 +53,19 @@ func (h *Handler) Register(c *gin.Context) {
 
 	c.JSON(http.StatusOK, LoginResponse{Token: token})
 }
+
+func (h *Handler) UpdateProfile(c *gin.Context) {
+	user := &models.User{}
+
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{"message": err.Error()})
+		return
+	}
+
+	if err := h.useCase.UpdateProfile(c.Request.Context(), user); err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{"message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, nil)
+}

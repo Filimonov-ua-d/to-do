@@ -49,3 +49,11 @@ func (p *PkgRepository) UserExist(ctx context.Context, username string) (bool, e
 	}
 	return count > 0, nil
 }
+
+func (p *PkgRepository) UpdateProfile(ctx context.Context, user *models.User) error {
+	_, err := p.DB.ExecContext(ctx, "UPDATE users SET username=$1, email=$2, image_url=$3 WHERE id=$4", user.Username, user.Email, user.ImageURL, user.Id)
+	if err != nil {
+		return err
+	}
+	return nil
+}

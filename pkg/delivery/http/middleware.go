@@ -20,7 +20,6 @@ func NewAuthMiddleware(usecase pkg.UseCase) gin.HandlerFunc {
 }
 
 func (m *AuthMiddleware) Handle(c *gin.Context) {
-
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" {
 		c.AbortWithStatus(http.StatusUnauthorized)
