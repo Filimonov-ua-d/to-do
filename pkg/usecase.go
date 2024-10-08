@@ -13,4 +13,5 @@ type UseCase interface {
 	Register(ctx context.Context, user *models.User) (string, error)
 	ParseToken(ctx context.Context, accessToken string) (*models.User, error)
 	UpdateProfile(ctx context.Context, user *models.User) error
+	ContactUs(ctx context.Context, contact models.Contact) error
 }

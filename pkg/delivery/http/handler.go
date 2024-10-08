@@ -69,3 +69,18 @@ func (h *Handler) UpdateProfile(c *gin.Context) {
 
 	c.JSON(http.StatusOK, nil)
 }
+
+func (h *Handler) ContactUs(c *gin.Context) {
+	form := models.Contact{}
+
+	if err := c.ShouldBindJSON(&form); err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{"message": err.Error()})
+		return
+	}
+
+	if err := h.useCase.ContactUs(c.Request.Context(), form); err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{"message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, nil)
+}
