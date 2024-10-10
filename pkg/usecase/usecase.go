@@ -123,3 +123,19 @@ func (p *PkgUseCase) UpdateProfile(ctx context.Context, user *models.User) error
 func (p *PkgUseCase) ContactUs(ctx context.Context, contact models.Contact) error {
 	return p.PkgRepo.ContactUs(ctx, contact)
 }
+
+func (p *PkgUseCase) UploadVideo(ctx context.Context, video models.VideoLesson) error {
+	return p.PkgRepo.UploadVideo(ctx, video)
+}
+
+func (p *PkgUseCase) GetVideos(ctx context.Context) ([]models.VideoLesson, error) {
+	return p.PkgRepo.GetVideos(ctx)
+}
+
+func (p *PkgUseCase) GetVideo(ctx context.Context, id int) (*models.VideoLesson, error) {
+	return p.PkgRepo.GetVideo(ctx, id)
+}
+
+func (p *PkgUseCase) DeleteVideo(ctx context.Context, id int) error {
+	return p.PkgRepo.DeleteVideo(ctx, id)
+}

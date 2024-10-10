@@ -16,4 +16,8 @@ func RegisterHTTPEndpoints(router *gin.Engine, pk pkg.UseCase) {
 	apiRouter := router.Group("/api", mw)
 
 	apiRouter.PUT("/update-profile", h.UpdateProfile)
+	apiRouter.POST("/upload-video", h.UploadVideo)
+	apiRouter.GET("/videos", h.GetVideos)
+	apiRouter.GET("/video/:id", h.GetVideo)
+	apiRouter.DELETE("/video/:id", h.DeleteVideo)
 }

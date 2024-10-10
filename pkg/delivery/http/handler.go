@@ -3,6 +3,7 @@ package http
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/Filimonov-ua-d/to-do/models"
 	"github.com/Filimonov-ua-d/to-do/pkg"
@@ -82,5 +83,73 @@ func (h *Handler) ContactUs(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{"message": err.Error()})
 		return
 	}
+	c.JSON(http.StatusOK, nil)
+}
+
+func (h *Handler) UploadVideo(c *gin.Context) {
+	video := models.VideoLesson{}
+
+	if err := c.ShouldBindJSON(&video); err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{"message": err.Error()})
+		return
+	}
+
+	if err := h.useCase.UploadVideo(c.Request.Context(), video); err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{"message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, nil)
+}
+
+// TODO: Implement this method
+func (h *Handler) UploadVideoFile(c *gin.Context) {
+	// file, err := c.FormFile("file")
+	// if err != nil {
+	// c.JSON(http.StatusBadRequest, ErrorResponse{"message": err.Error()})
+	// return
+	// }
+
+	// c.JSON(http.StatusOK, nil)
+}
+
+func (h *Handler) GetVideo(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{"message": err.Error()})
+		return
+	}
+
+	video, err := h.useCase.GetVideo(c.Request.Context(), id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{"message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, video)
+}
+
+func (h *Handler) GetVideos(c *gin.Context) {
+	videos, err := h.useCase.GetVideos(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{"message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, videos)
+}
+
+func (h *Handler) DeleteVideo(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{"message": err.Error()})
+		return
+	}
+
+	if err := h.useCase.DeleteVideo(c.Request.Context(), id); err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{"message": err.Error()})
+		return
+	}
+
 	c.JSON(http.StatusOK, nil)
 }

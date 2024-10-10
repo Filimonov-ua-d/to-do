@@ -14,4 +14,8 @@ type UseCase interface {
 	ParseToken(ctx context.Context, accessToken string) (*models.User, error)
 	UpdateProfile(ctx context.Context, user *models.User) error
 	ContactUs(ctx context.Context, contact models.Contact) error
+	UploadVideo(ctx context.Context, video models.VideoLesson) error
+	GetVideo(ctx context.Context, id int) (*models.VideoLesson, error)
+	GetVideos(ctx context.Context) ([]models.VideoLesson, error)
+	DeleteVideo(ctx context.Context, id int) error
 }
