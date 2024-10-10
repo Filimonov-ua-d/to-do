@@ -16,3 +16,10 @@ type Contact struct {
 	Message   string `json:"message,omitempty"`
 	Course    string `json:"course"`
 }
+
+type VideoLesson struct {
+	Id      int    `json:"id"`
+	Course  string `json:"course,omitempty"`
+	URL     string `json:"url"`
+	Comment string `json:"comment,omitempty"`
+}
