@@ -19,5 +19,4 @@ func main() {
 	if err := app.Run(viper.GetString("PORT")); err != nil {
 		log.Fatalf("%s", err.Error())
 	}
-
 }
