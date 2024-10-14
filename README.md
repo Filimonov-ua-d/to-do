@@ -187,12 +187,7 @@ value: 'Bearer <JWT TOKEN>'
 
 This endpoint is used to delete a video lesson by its ID.
 
-#### Example Request:
-```
-DELETE /api/delete-video/:id
-```
-
-Also, you need to add a header:
+You need to add a header:
 
 #### Example Header:
 ```
@@ -209,3 +204,58 @@ value: 'Bearer <JWT TOKEN>'
 }
 ```
 
+### GET /api/video/:id
+
+This endpoint is used to get a video lesson by its ID.
+
+You need to add a header:
+
+#### Example Header:
+```
+key: 'Authorization'
+```
+```
+value: 'Bearer <JWT TOKEN>'
+```
+
+###### Example Response:
+```json
+{
+    "id": 1,
+    "course": "Basic English",
+    "url": "https://example.com/video/lesson1.mp4",
+    "comment": "Introduction to the course"
+}
+```
+
+### GET /api/videos
+
+This endpoint is used to get a video lessons.
+
+You need to add a header:
+
+#### Example Header:
+```
+key: 'Authorization'
+```
+```
+value: 'Bearer <JWT TOKEN>'
+```
+
+###### Example Response:
+```json
+[
+{
+    "id": 1,
+    "course": "Basic English p.1",
+    "url": "https://example.com/video/lesson1-1.mp4",
+    "comment": "Introduction to the course p.1"
+},
+{
+    "id": 2,
+    "course": "Basic English p.2",
+    "url": "https://example.com/video/lesson1-2.mp4",
+    "comment": "Introduction to the course p.2"
+}
+]
+```
