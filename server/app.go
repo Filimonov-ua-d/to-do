@@ -58,6 +58,7 @@ func NewApp() *App {
 func (a *App) Run(port string) error {
 
 	router := gin.Default()
+	router.Use(CORSMiddleware())
 
 	dhttp.RegisterHTTPEndpoints(router, a.pkgUC)
 
@@ -84,4 +85,23 @@ func (a *App) Run(port string) error {
 	defer shutdown()
 
 	return a.httpServer.Shutdown(ctx)
+}
+
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Set the required CORS headers
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*") // Allow all origins, restrict in production
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		// If the request method is OPTIONS, respond with 200 OK
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusOK)
+			return
+		}
+
+		// Process the next handler
+		c.Next()
+	}
 }
