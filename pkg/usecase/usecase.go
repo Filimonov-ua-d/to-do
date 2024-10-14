@@ -39,7 +39,6 @@ func NewPkgUseCase(PkgRepo pkg.Repository,
 }
 
 func (p *PkgUseCase) Login(ctx context.Context, username, password, email string) (string, error) {
-
 	pwd := sha1.New()
 	pwd.Write([]byte(password))
 	pwd.Write([]byte(p.hashSalt))

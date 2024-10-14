@@ -1,8 +1,8 @@
 package http
 
 type User struct {
-	Id       int    `json:"-"`
-	Username string `json:"username"`
+	Id       int    `json:"-,omitempty"`
+	Username string `json:"username,omitempty"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
