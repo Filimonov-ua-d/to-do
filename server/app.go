@@ -29,15 +29,17 @@ func NewApp() *App {
 	var db *sqlx.DB
 	var err error
 
-	user := viper.GetString("postgres.user")
-	password := viper.GetString("postgres.password")
-	dbname := viper.GetString("postgres.dbname")
-	sslmode := viper.GetString("postgres.sslmode")
-	host := viper.GetString("postgres.host")
-	port := viper.GetString("postgres.port")
+	user := viper.GetString("USER")
+	password := viper.GetString("PASSWORD")
+	dbname := viper.GetString("DB")
+	// sslmode := viper.GetString("SSLMODE")
+	host := viper.GetString("HOST")
+	port := viper.GetString("PORT")
 
-	dsn := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s host=%s port=%s",
-		user, password, dbname, sslmode, host, port)
+	// dsn := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s host=%s port=%s",
+	// user, password, dbname, sslmode, host, port)
+	dsn := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s",
+		user, password, dbname, host, port)
 
 	if db, err = sqlx.Connect("postgres", dsn); err != nil {
 		log.Panic(err)
