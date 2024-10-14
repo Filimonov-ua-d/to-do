@@ -2,7 +2,6 @@ package config
 
 import (
 	"log"
-	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
@@ -15,8 +14,5 @@ func Init() error {
 	}
 
 	viper.AutomaticEnv()
-	viper.SetEnvPrefix("POSTGRES")
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-
 	return nil
 }

@@ -29,12 +29,12 @@ func NewApp() *App {
 	var db *sqlx.DB
 	var err error
 
-	user := viper.GetString("USER")
-	password := viper.GetString("PASSWORD")
-	dbname := viper.GetString("DB")
+	user := viper.GetString("POSTGRES_USER")
+	password := viper.GetString("POSTGRES_PASSWORD")
+	dbname := viper.GetString("POSTGRES_DB")
 	// sslmode := viper.GetString("SSLMODE")
-	host := viper.GetString("HOST")
-	port := viper.GetString("PORT")
+	host := viper.GetString("POSTGRES_HOST")
+	port := viper.GetString("POSTGRES_PORT")
 
 	// dsn := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s host=%s port=%s",
 	// user, password, dbname, sslmode, host, port)
@@ -50,10 +50,10 @@ func NewApp() *App {
 	return &App{
 		pkgUC: pkgUC.NewPkgUseCase(
 			pkgRepo,
-			[]byte(viper.GetString("auth.signing_key")),
-			viper.GetString("auth.hash_salt"),
-			viper.GetDuration("auth.token_ttl"),
-			viper.GetString("port")),
+			[]byte(viper.GetString("SIGNING_KEY")),
+			viper.GetString("HASH_SALT"),
+			viper.GetDuration("TOKEN_TTL"),
+			viper.GetString("PORT")),
 	}
 }
 
