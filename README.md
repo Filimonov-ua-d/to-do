@@ -1,4 +1,4 @@
-# to-do app
+# total english app
 This is a simple Golang application with PostgreSQL database.
 
 ## Installation
@@ -25,6 +25,8 @@ CREATE USER to_do_user WITH PASSWORD 'your_password';
 GRANT ALL PRIVILEGES ON DATABASE to-do TO to_do_user;
 ```
 
+Also add envs
+
 ## Usage
 
 To start the application, run the following command:
@@ -36,7 +38,35 @@ By default, the application will listen on port 8080.
 
 ## API Endpoints
 
+### API HOST: 
+```
+https://to-do-g938.onrender.com
+```
+
 The application provides the following API endpoints:
+
+### POST /register
+
+This endpoint is used to authenticate users. The following request body is expected:
+
+##### Example Input: 
+```json
+{
+    "name":"test",
+    "email": "test@gmail.com",
+    "password":"test"
+}
+```
+
+If the provided credentials are correct, the server will respond with a JWT token:
+
+##### Example Response: 
+```json
+{
+	"token": "eyJhbGcimYmY5Zjk3YjUifXgw6yb6If9aB8imGhxMOjsk"
+} 
+```
+
 
 ### POST /login
 
@@ -45,7 +75,8 @@ This endpoint is used to authenticate users. The following request body is expec
 ##### Example Input: 
 ```json
 {
-  "username": "test",
+  "name": "test"
+  "email": "test",
   "password": "123456"
 }
 ```
@@ -59,15 +90,19 @@ If the provided credentials are correct, the server will respond with a JWT toke
 } 
 ```
 
-### POST /create_task
+### POST /contact-us
 
-This endpoint is used to create task. The following request body is expected:
+This endpoint is used to save contact us req. The following request body is expected:
 
 #### Example Input
 ```json
 {
-    "title": "test2",
-    "description": "test2"
+    "name": "Stepan",
+    "phone": "+380730737373", (OPTIONAL)
+    "messanger": "+380730737373", (OPTIONAL)
+    "email": "StepanGiga@gmail.com",
+    "message": "Give me course for free pls", (OPTIONAL)
+    "course": "Basic english"
 }
 ```
 
@@ -83,101 +118,94 @@ value 'Bearer <JWT TOKEN>'
 
 ##### Example Response: 
 ```
-201 CREATED
-```
-
-### GET /tasks
-You need to add a header with the
-
-#### Example Input
-```
-key 'Authorization'
-``` 
-```
-value 'Bearer <JWT TOKEN>'
-```
-
-##### Example Response: 
-```json
 200 OK
-
-[
-    {
-        "id": 1,
-        "title": "test",
-        "description": "",
-        "is_done": true
-    },
-    {
-        "id": 3,
-        "title": "test2",
-        "description": "test2",
-        "is_done": false
-    }
-]
 ```
 
-### GET /tasks/:id
-You need to add a header with the
+### PUT /api/update-profile
 
-#### Example Input
-```
-key 'Authorization'
-``` 
-```
-value 'Bearer <JWT TOKEN>'
-```
+This endpoint is used to update a user's profile. The following request body is expected:
 
-##### Example Response: 
+###### Example Request:
 ```json
-200 OK
-
 {
-    "id": 1,
-    "title": "test",
-    "description": "",
-    "is_done": false
+    "name": "John Doe",
+    "email": "johndoe@gmail.com",
+    "password": "123456",
+    "image_url": "Advanced English"
 }
 ```
 
-### PUT /tasks/:id
-You need to add a header with the
+Also, you need to add a header:
 
-#### Example Input
+#### Example Header:
 ```
-key 'Authorization'
-``` 
+key: 'Authorization'
 ```
-value 'Bearer <JWT TOKEN>'
+```
+value: 'Bearer <JWT TOKEN>'
 ```
 
-#### Body
+###### Example Response:
 ```json
 {
-    "id": 1,
-    "title": "test",
-    "desctiption": "test",
-    "is_done": true
+    200 OK
 }
 ```
 
-##### Example Response: 
+### POST /api/upload-video
+
+This endpoint is used to upload a new video lesson. The following request body is expected:
+
+###### Example Request:
 ```json
-200 OK
+{
+    "id": 1,
+    "course": "Basic English",
+    "url": "https://example.com/video/lesson1.mp4",
+    "comment": "Introduction to the course" // (OPTIONAL)
+}
 ```
 
-### DELETE /tasks/:id
-You need to add a header with the
+Also, you need to add a header:
 
-#### Example Input
+#### Example Header:
 ```
-key 'Authorization'
-``` 
+key: 'Authorization'
 ```
-value 'Bearer <JWT TOKEN>'
+```
+value: 'Bearer <JWT TOKEN>'
 ```
 
-##### Example Response: 
+###### Example Response:
 ```json
-200 OK
+{
+    200 OK
+}
 ```
+
+### DELETE /api/delete-video/:id
+
+This endpoint is used to delete a video lesson by its ID.
+
+#### Example Request:
+```
+DELETE /api/delete-video/:id
+```
+
+Also, you need to add a header:
+
+#### Example Header:
+```
+key: 'Authorization'
+```
+```
+value: 'Bearer <JWT TOKEN>'
+```
+
+###### Example Response:
+```json
+{
+    200 OK
+}
+```
+
