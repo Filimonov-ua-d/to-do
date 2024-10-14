@@ -36,12 +36,19 @@ func NewApp() *App {
 	host := viper.GetString("POSTGRES_HOST")
 	port := viper.GetString("POSTGRES_PORT")
 
+	log.Println("POSTGRES_USER:", viper.GetString("POSTGRES_USER"))
+	log.Println("POSTGRES_DB:", viper.GetString("POSTGRES_DB"))
+	log.Println("POSTGRES_HOST:", viper.GetString("POSTGRES_HOST"))
+	log.Println("POSTGRES_PORT:", viper.GetString("POSTGRES_PORT"))
+	log.Println("POSTGRES_PASSWORD exists: ", viper.IsSet("POSTGRES_PASSWORD"))
+
 	// dsn := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s host=%s port=%s",
 	// user, password, dbname, sslmode, host, port)
 	dsn := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s",
 		user, password, dbname, host, port)
 
 	if db, err = sqlx.Connect("postgres", dsn); err != nil {
+		log.Println(dsn)
 		log.Panic(err)
 	}
 
