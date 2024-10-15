@@ -38,13 +38,13 @@ func NewPkgUseCase(PkgRepo pkg.Repository,
 	}
 }
 
-func (p *PkgUseCase) Login(ctx context.Context, username, password, email string) (string, error) {
+func (p *PkgUseCase) Login(ctx context.Context, password, email string) (string, error) {
 	pwd := sha1.New()
 	pwd.Write([]byte(password))
 	pwd.Write([]byte(p.hashSalt))
 	password = fmt.Sprintf("%x", pwd.Sum(nil))
 
-	user, err := p.PkgRepo.GetUser(ctx, username, password)
+	user, err := p.PkgRepo.GetUser(ctx, email, password)
 	if err != nil {
 		return "", pkg.ErrUserNotFound
 	}
