@@ -38,7 +38,7 @@ func NewPkgUseCase(PkgRepo pkg.Repository,
 	}
 }
 
-func (p *PkgUseCase) Login(ctx context.Context, password, email string) (string, error) {
+func (p *PkgUseCase) Login(ctx context.Context, password, email string) (*models.User, string, error) {
 	pwd := sha1.New()
 	pwd.Write([]byte(password))
 	pwd.Write([]byte(p.hashSalt))
@@ -46,7 +46,7 @@ func (p *PkgUseCase) Login(ctx context.Context, password, email string) (string,
 
 	user, err := p.PkgRepo.GetUser(ctx, email, password)
 	if err != nil {
-		return "", pkg.ErrUserNotFound
+		return nil, "", pkg.ErrUserNotFound
 	}
 
 	claims := AuthClaims{
@@ -57,8 +57,8 @@ func (p *PkgUseCase) Login(ctx context.Context, password, email string) (string,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	return token.SignedString(p.signingKey)
+	res, err := token.SignedString(p.signingKey)
+	return user, res, err
 }
 
 func (p *PkgUseCase) ParseToken(ctx context.Context, accessToken string) (*models.User, error) {

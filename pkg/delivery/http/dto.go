@@ -1,5 +1,7 @@
 package http
 
+import "github.com/Filimonov-ua-d/to-do/models"
+
 type User struct {
 	Id       int    `json:"-,omitempty"`
 	Username string `json:"name,omitempty"`
@@ -15,5 +17,6 @@ type ApiError struct {
 type ErrorResponse map[string]string
 
 type LoginResponse struct {
-	Token string `json:"token"`
+	Token string      `json:"token"`
+	User  models.User `json:"user"`
 }
