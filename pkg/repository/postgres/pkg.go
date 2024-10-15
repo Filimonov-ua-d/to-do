@@ -2,7 +2,7 @@ package postgres
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	"github.com/Filimonov-ua-d/to-do/models"
 	"github.com/jmoiron/sqlx"
@@ -22,10 +22,10 @@ func (p *PkgRepository) GetUser(ctx context.Context, email, password string) (u 
 
 	user := new(User)
 
-	selectSQL := "SELECT id, username, email, password_hash FROM users WHERE email=$1 AND password_hash=$2 LIMIT 1"
-	err = p.DB.QueryRowContext(ctx, selectSQL, email, password).Scan(&user.Id, &user.Username, &user.Email, &user.Password)
+	selectSQL := "SELECT id, username, email, image_url FROM users WHERE email=$1 AND password_hash=$2 LIMIT 1"
+	err = p.DB.QueryRowContext(ctx, selectSQL, email, password).Scan(&user.Id, &user.Username, &user.Email, &user.ImageURL)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return nil, err
 	}
 

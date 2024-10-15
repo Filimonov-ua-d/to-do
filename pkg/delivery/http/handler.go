@@ -28,13 +28,13 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := h.useCase.Login(c.Request.Context(), user.Password, user.Email)
+	res, token, err := h.useCase.Login(c.Request.Context(), user.Password, user.Email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{"message": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, LoginResponse{Token: token})
+	c.JSON(http.StatusOK, LoginResponse{Token: token, User: *res})
 }
 
 func (h *Handler) Register(c *gin.Context) {
