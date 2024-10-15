@@ -52,7 +52,8 @@ func (h *Handler) Register(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, LoginResponse{Token: token})
+	user.Password = ""
+	c.JSON(http.StatusOK, LoginResponse{Token: token, User: *user})
 }
 
 func (h *Handler) UpdateProfile(c *gin.Context) {
