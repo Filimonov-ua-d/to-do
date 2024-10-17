@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 	"log"
 
 	"github.com/Filimonov-ua-d/to-do/models"
@@ -23,11 +24,17 @@ func (p *PkgRepository) GetUser(ctx context.Context, email, password string) (u 
 	user := new(User)
 
 	selectSQL := "SELECT id, username, email, image_url FROM users WHERE email=$1 AND password_hash=$2 LIMIT 1"
-	err = p.DB.QueryRowContext(ctx, selectSQL, email, password).Scan(&user.Id, &user.Username, &user.Email, &user.ImageURL)
+	err = p.DB.QueryRowContext(ctx, selectSQL, email, password).Scan(&user.Id, &user.Username, &user.Email, &imageURL)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
+
+	if !imageURL.Valid {
+		user.ImageURL = ""
+		return toModelUser(user), nil
+	}
+	user.ImageURL = imageURL.String
 
 	return toModelUser(user), nil
 
@@ -99,4 +106,19 @@ func (p *PkgRepository) DeleteVideo(ctx context.Context, id int) error {
 		return err
 	}
 	return nil
+}
+
+func (p *PkgRepository) ImageExists(ctx context.Context, filename string, userID int) (bool, error) {
+	var imageURL string
+	err := p.DB.GetContext(ctx, &imageURL, "SELECT image_url FROM users WHERE image_url=$1 AND id=$2", filename, userID)
+	if err != nil && err != sql.ErrNoRows {
+		return false, err
+	}
+
+	return imageURL == filename, nil
+}
+
+func (p *PkgRepository) UploadPicture(ctx context.Context, imageURL string, userID int) (err error) {
+	_, err = p.DB.ExecContext(ctx, "UPDATE users SET image_url=$1 WHERE id=$2", imageURL, userID)
+	return
 }

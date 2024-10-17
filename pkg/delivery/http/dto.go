@@ -7,6 +7,7 @@ type User struct {
 	Username string `json:"name,omitempty"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	ImageURL string `json:"image_url,omitempty"`
 }
 
 type ApiError struct {
