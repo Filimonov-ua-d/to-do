@@ -8,6 +8,7 @@ import (
 	"github.com/Filimonov-ua-d/to-do/models"
 	"github.com/Filimonov-ua-d/to-do/pkg"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 )
 
 type Handler struct {
@@ -153,4 +154,35 @@ func (h *Handler) DeleteVideo(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, nil)
+}
+
+func (h *Handler) UploadPicture(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		log.Print(err)
+		c.JSON(http.StatusBadRequest, ErrorResponse{"message": err.Error()})
+		return
+	}
+
+	file, err := c.FormFile("file")
+	if err != nil {
+		log.Print(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	filename := file.Filename
+	if err := c.SaveUploadedFile(file, "uploads/"+filename); err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	path, err := h.useCase.UploadPicture(c.Request.Context(), filename, id)
+	if err != nil {
+		log.Print(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]string{"path": path})
 }

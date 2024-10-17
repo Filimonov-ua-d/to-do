@@ -1,6 +1,14 @@
 package postgres
 
-import "github.com/Filimonov-ua-d/to-do/models"
+import (
+	"database/sql"
+
+	"github.com/Filimonov-ua-d/to-do/models"
+)
+
+var (
+	imageURL sql.NullString
+)
 
 type User struct {
 	Id       int    `db:"id"`

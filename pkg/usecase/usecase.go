@@ -138,3 +138,21 @@ func (p *PkgUseCase) GetVideo(ctx context.Context, id int) (*models.VideoLesson,
 func (p *PkgUseCase) DeleteVideo(ctx context.Context, id int) error {
 	return p.PkgRepo.DeleteVideo(ctx, id)
 }
+
+func (p *PkgUseCase) UploadPicture(ctx context.Context, filename string, userID int) (string, error) {
+	path := "uploads/" + filename
+	exists, err := p.PkgRepo.ImageExists(ctx, path, userID)
+	if err != nil {
+		return "", err
+	}
+
+	if exists {
+		return "", fmt.Errorf("Error insert file %s. FileName already exists", filename)
+	}
+
+	if err = p.PkgRepo.UploadPicture(ctx, filename, userID); err != nil {
+		return "", err
+	}
+
+	return path, err
+}
