@@ -172,6 +172,11 @@ func (h *Handler) UploadPicture(c *gin.Context) {
 	}
 
 	filename := file.Filename
+	if file.Size > 513*1024 {
+		c.JSON(http.StatusBadRequest, ErrorResponse{"message": "File size exceeds the limit"})
+		return
+	}
+
 	if err := c.SaveUploadedFile(file, "uploads/"+filename); err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
