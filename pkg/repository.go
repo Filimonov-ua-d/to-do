@@ -16,6 +16,6 @@ type Repository interface {
 	GetVideo(ctx context.Context, id int) (*models.VideoLesson, error)
 	GetVideos(ctx context.Context) ([]models.VideoLesson, error)
 	DeleteVideo(ctx context.Context, id int) error
-	ImageExists(ctx context.Context, filename string, userID int) (bool, error)
+	ImageExists(ctx context.Context, file string, userID int) (bool, error)
 	UploadPicture(ctx context.Context, imageURL string, userID int) (err error)
 }

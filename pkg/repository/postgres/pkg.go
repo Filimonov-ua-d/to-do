@@ -108,14 +108,14 @@ func (p *PkgRepository) DeleteVideo(ctx context.Context, id int) error {
 	return nil
 }
 
-func (p *PkgRepository) ImageExists(ctx context.Context, filename string, userID int) (bool, error) {
-	var imageURL string
-	err := p.DB.GetContext(ctx, &imageURL, "SELECT image_url FROM users WHERE image_url=$1 AND id=$2", filename, userID)
+func (p *PkgRepository) ImageExists(ctx context.Context, file string, userID int) (bool, error) {
+	var image string
+	err := p.DB.GetContext(ctx, &image, "SELECT image_url FROM users WHERE image_url=$1 AND id=$2", file, userID)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
 	}
 
-	return imageURL == filename, nil
+	return image == file, nil
 }
 
 func (p *PkgRepository) UploadPicture(ctx context.Context, imageURL string, userID int) (err error) {
