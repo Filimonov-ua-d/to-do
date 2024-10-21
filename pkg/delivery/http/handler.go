@@ -173,8 +173,8 @@ func (h *Handler) UploadPicture(c *gin.Context) {
 		return
 	}
 
-	if len(fileBytes) > 513*1024 {
-		c.JSON(http.StatusBadRequest, ErrorResponse{"message": "File size exceeds the limit"})
+	if len(fileBytes) > 2*1024*1024 {
+		c.JSON(http.StatusBadRequest, ErrorResponse{"message": "File size exceeds the limit 2MB"})
 		return
 	}
 
