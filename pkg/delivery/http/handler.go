@@ -71,7 +71,7 @@ func (h *Handler) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, nil)
+	c.JSON(http.StatusOK, LoginResponse{User: *user})
 }
 
 func (h *Handler) ContactUs(c *gin.Context) {
@@ -102,7 +102,7 @@ func (h *Handler) UploadVideo(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, nil)
+	c.JSON(http.StatusOK, video)
 }
 
 // TODO: Implement this method
@@ -117,7 +117,7 @@ func (h *Handler) UploadVideoFile(c *gin.Context) {
 }
 
 func (h *Handler) GetVideo(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("course_id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{"message": err.Error()})
 		return
@@ -143,7 +143,7 @@ func (h *Handler) GetVideos(c *gin.Context) {
 }
 
 func (h *Handler) DeleteVideo(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("course_id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{"message": err.Error()})
 		return

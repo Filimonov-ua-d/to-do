@@ -58,7 +58,7 @@ func (p *PkgRepository) UserExist(ctx context.Context, username string) (bool, e
 }
 
 func (p *PkgRepository) UpdateProfile(ctx context.Context, user *models.User) error {
-	_, err := p.DB.ExecContext(ctx, "UPDATE users SET username=$1, email=$2, image_url=$3 WHERE id=$4", user.Username, user.Email, user.ImageURL, user.Id)
+	_, err := p.DB.ExecContext(ctx, "UPDATE users SET username=$1, email=$2, image_url=$3, password_hash=$4 WHERE id=$5", user.Username, user.Email, user.ImageURL, user.Password, user.Id)
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (p *PkgRepository) ContactUs(ctx context.Context, contact models.Contact) e
 }
 
 func (p *PkgRepository) UploadVideo(ctx context.Context, video models.VideoLesson) error {
-	_, err := p.DB.ExecContext(ctx, "INSERT INTO video_lessons (course, url, comment) VALUES ($1, $2, $3)", video.Course, video.URL, video.Comment)
+	_, err := p.DB.ExecContext(ctx, "INSERT INTO video_lessons (course_id, url, comment) VALUES ($1, $2, $3)", video.CourseID, video.URL, video.Comment)
 	if err != nil {
 		return err
 	}
@@ -84,7 +84,7 @@ func (p *PkgRepository) UploadVideo(ctx context.Context, video models.VideoLesso
 
 func (p *PkgRepository) GetVideos(ctx context.Context) ([]models.VideoLesson, error) {
 	videos := []models.VideoLesson{}
-	err := p.DB.SelectContext(ctx, &videos, "SELECT id, course, url, comment FROM video_lessons")
+	err := p.DB.SelectContext(ctx, &videos, "SELECT id, course_id, url, comment FROM video_lessons")
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (p *PkgRepository) GetVideos(ctx context.Context) ([]models.VideoLesson, er
 
 func (p *PkgRepository) GetVideo(ctx context.Context, id int) (*models.VideoLesson, error) {
 	video := new(models.VideoLesson)
-	err := p.DB.GetContext(ctx, video, "SELECT id, course, url, comment FROM video_lessons WHERE id=$1", id)
+	err := p.DB.GetContext(ctx, video, "SELECT id, course_id, url, comment FROM video_lessons WHERE course_id=$1", id)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (p *PkgRepository) GetVideo(ctx context.Context, id int) (*models.VideoLess
 }
 
 func (p *PkgRepository) DeleteVideo(ctx context.Context, id int) error {
-	_, err := p.DB.ExecContext(ctx, "DELETE FROM video_lessons WHERE id=$1", id)
+	_, err := p.DB.ExecContext(ctx, "DELETE FROM video_lessons WHERE course_id=$1", id)
 	if err != nil {
 		return err
 	}
