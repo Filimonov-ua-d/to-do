@@ -46,7 +46,7 @@ func (p *PkgUseCase) Login(ctx context.Context, password, email string) (*models
 
 	user, err := p.PkgRepo.GetUser(ctx, email, password)
 	if err != nil {
-		return nil, "", pkg.ErrUserNotFound
+		return nil, "", err
 	}
 
 	claims := AuthClaims{
