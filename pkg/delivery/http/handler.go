@@ -2,6 +2,7 @@ package http
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -158,6 +159,13 @@ func (h *Handler) DeleteVideo(c *gin.Context) {
 }
 
 func (h *Handler) UploadPicture(c *gin.Context) {
+	fileBytes, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		log.Print(err)
+		c.JSON(http.StatusBadRequest, ErrorResponse{"message": err.Error()})
+		return
+	}
+
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		log.Print(err)
@@ -165,25 +173,12 @@ func (h *Handler) UploadPicture(c *gin.Context) {
 		return
 	}
 
-	file, err := c.FormFile("file")
-	if err != nil {
-		log.Print(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	filename := file.Filename
-	if file.Size > 513*1024 {
+	if len(fileBytes) > 513*1024 {
 		c.JSON(http.StatusBadRequest, ErrorResponse{"message": "File size exceeds the limit"})
 		return
 	}
 
-	if err := c.SaveUploadedFile(file, "uploads/"+filename); err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	path, err := h.useCase.UploadPicture(c.Request.Context(), filename, id)
+	path, err := h.useCase.UploadPicture(c.Request.Context(), fileBytes, id)
 	if err != nil {
 		log.Print(err)
 		c.AbortWithStatus(http.StatusInternalServerError)

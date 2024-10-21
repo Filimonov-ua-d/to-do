@@ -3,6 +3,8 @@ package usecase
 import (
 	"context"
 	"crypto/sha1"
+	"encoding/base64"
+	"errors"
 	"fmt"
 	"time"
 
@@ -139,20 +141,21 @@ func (p *PkgUseCase) DeleteVideo(ctx context.Context, id int) error {
 	return p.PkgRepo.DeleteVideo(ctx, id)
 }
 
-func (p *PkgUseCase) UploadPicture(ctx context.Context, filename string, userID int) (string, error) {
-	path := "uploads/" + filename
-	exists, err := p.PkgRepo.ImageExists(ctx, path, userID)
+func (p *PkgUseCase) UploadPicture(ctx context.Context, file []byte, userID int) (string, error) {
+	encodedFile := base64.StdEncoding.EncodeToString(file)
+
+	exists, err := p.PkgRepo.ImageExists(ctx, encodedFile, userID)
 	if err != nil {
 		return "", err
 	}
 
 	if exists {
-		return "", fmt.Errorf("Error insert file %s. FileName already exists", filename)
+		return "", errors.New("error insert file. File already exists")
 	}
 
-	if err = p.PkgRepo.UploadPicture(ctx, filename, userID); err != nil {
+	if err = p.PkgRepo.UploadPicture(ctx, encodedFile, userID); err != nil {
 		return "", err
 	}
 
-	return path, err
+	return encodedFile, err
 }
