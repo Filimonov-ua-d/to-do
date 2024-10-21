@@ -178,12 +178,12 @@ func (h *Handler) UploadPicture(c *gin.Context) {
 		return
 	}
 
-	path, err := h.useCase.UploadPicture(c.Request.Context(), fileBytes, id)
+	encodedFile, err := h.useCase.UploadPicture(c.Request.Context(), fileBytes, id)
 	if err != nil {
 		log.Print(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, map[string]string{"path": path})
+	c.JSON(http.StatusOK, map[string]string{"encoded_file": encodedFile})
 }
