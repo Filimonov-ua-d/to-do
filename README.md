@@ -264,7 +264,7 @@ value: 'Bearer <JWT TOKEN>'
 ]
 ```
 
-### POST /api/upload-image/:id
+### PUT /api/upload-image/:id
 
 SEND user_id in "/:id" param.
 IN RESPONSE U WILL GET BASE64 STRING
