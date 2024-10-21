@@ -71,7 +71,7 @@ func (h *Handler) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, nil)
+	c.JSON(http.StatusOK, LoginResponse{User: *user})
 }
 
 func (h *Handler) ContactUs(c *gin.Context) {
