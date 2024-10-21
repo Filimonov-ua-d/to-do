@@ -263,3 +263,31 @@ value: 'Bearer <JWT TOKEN>'
 }
 ]
 ```
+
+### POST /api/upload-image/:id
+
+SEND user_id in "/:id" param.
+IN RESPONSE U WILL GET BASE64 STRING
+
+This endpoint is used to upload a new user image. The following request body is expected:
+
+###### Example Request:
+<img width="615" alt="image" src="https://github.com/user-attachments/assets/35555820-5557-4a53-85e5-4a79e221fd81">
+
+Also, you need to add a header:
+
+#### Example Header:
+```
+key: 'Authorization'
+```
+```
+value: 'Bearer <JWT TOKEN>'
+```
+
+###### Example Response:
+```json
+{
+    200 OK
+
+    "encoded_file": "base64 string",
+}
