@@ -159,8 +159,7 @@ This endpoint is used to upload a new video lesson. The following request body i
 ###### Example Request:
 ```json
 {
-    "id": 1,
-    "course": "Basic English",
+    "course_id": 12,
     "url": "https://example.com/video/lesson1.mp4",
     "comment": "Introduction to the course" // (OPTIONAL)
 }
@@ -180,12 +179,17 @@ value: 'Bearer <JWT TOKEN>'
 ```json
 {
     200 OK
+
+    "id": 1,
+    "course_id": 12,
+    "url": "https://example.com/video/lesson1.mp4",
+    "comment": "Introduction to the course" // (OPTIONAL)
 }
 ```
 
-### DELETE /api/delete-video/:id
+### DELETE /api/delete-video/:course_id
 
-This endpoint is used to delete a video lesson by its ID.
+This endpoint is used to delete ALL video lessons by course ID.
 
 You need to add a header:
 
@@ -206,7 +210,7 @@ value: 'Bearer <JWT TOKEN>'
 
 ### GET /api/video/:id
 
-This endpoint is used to get a video lesson by its ID.
+This endpoint is used to get a video lesson by course ID.
 
 You need to add a header:
 
@@ -222,7 +226,7 @@ value: 'Bearer <JWT TOKEN>'
 ```json
 {
     "id": 1,
-    "course": "Basic English",
+    "course_id": 12,
     "url": "https://example.com/video/lesson1.mp4",
     "comment": "Introduction to the course"
 }
@@ -247,13 +251,13 @@ value: 'Bearer <JWT TOKEN>'
 [
 {
     "id": 1,
-    "course": "Basic English p.1",
+    "course_id": 12,
     "url": "https://example.com/video/lesson1-1.mp4",
     "comment": "Introduction to the course p.1"
 },
 {
     "id": 2,
-    "course": "Basic English p.2",
+    "course": 12,
     "url": "https://example.com/video/lesson1-2.mp4",
     "comment": "Introduction to the course p.2"
 }
