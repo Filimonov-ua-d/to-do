@@ -18,8 +18,8 @@ type Contact struct {
 }
 
 type VideoLesson struct {
-	Id      int    `json:"id"`
-	Course  string `json:"course,omitempty"`
-	URL     string `json:"url"`
-	Comment string `json:"comment,omitempty"`
+	Id       int    `json:"id,omitempty"`
+	CourseID int    `json:"course_id"`
+	URL      string `json:"url"`
+	Comment  string `json:"comment,omitempty"`
 }
