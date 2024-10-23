@@ -18,5 +18,5 @@ type UseCase interface {
 	GetVideo(ctx context.Context, id int) (*models.VideoLesson, error)
 	GetVideos(ctx context.Context) ([]models.VideoLesson, error)
 	DeleteVideo(ctx context.Context, id int) error
-	UploadPicture(ctx context.Context, file []byte, userID int) (string, error)
+	UploadPicture(ctx context.Context, fileBytes []byte, fileExtension string, fileSize, userID int64) (string, error)
 }
