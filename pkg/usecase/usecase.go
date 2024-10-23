@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/Filimonov-ua-d/to-do/models"
@@ -156,7 +157,7 @@ func (p *PkgUseCase) DeleteVideo(ctx context.Context, id int) error {
 	return p.PkgRepo.DeleteVideo(ctx, id)
 }
 
-func (p *PkgUseCase) UploadPicture(ctx context.Context, fileBytes []byte, fileExtension string, fileSize, userID int64) (string, error) {
+func (p *PkgUseCase) UploadPicture(ctx context.Context, fileBytes []byte, filename, fileExtension string, fileSize, userID int64) (string, error) {
 	sess, err := session.NewSession(&aws.Config{
 		Region:      aws.String(p.region),
 		Credentials: credentials.NewStaticCredentials(p.accessKey, p.secretKey, ""),
@@ -167,15 +168,16 @@ func (p *PkgUseCase) UploadPicture(ctx context.Context, fileBytes []byte, fileEx
 
 	svc := s3.New(sess)
 
-	fileType := fmt.Sprintf("image/%s", fileExtension)
-	key := fmt.Sprintf("uploads/%d.%s", userID, fileExtension)
+	fileType := fmt.Sprintf("image/%s", strings.TrimPrefix(fileExtension, "."))
+	key := fmt.Sprintf("uploads/%d/%s", userID, filename)
 
 	_, err = svc.PutObject(&s3.PutObjectInput{
-		Bucket:        aws.String(p.bucket),
-		Key:           aws.String(key),
-		Body:          bytes.NewReader(fileBytes),
-		ContentLength: aws.Int64(fileSize),
-		ContentType:   aws.String(fileType),
+		Bucket:             aws.String(p.bucket),
+		Key:                aws.String(key),
+		Body:               bytes.NewReader(fileBytes),
+		ContentLength:      aws.Int64(fileSize),
+		ContentType:        aws.String(fileType),
+		ContentDisposition: aws.String("inline"),
 	})
 	if err != nil {
 		log.Fatalf("Не вдалося завантажити файл: %v", err)
