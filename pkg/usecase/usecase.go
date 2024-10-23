@@ -1,15 +1,20 @@
 package usecase
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha1"
-	"encoding/base64"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/Filimonov-ua-d/to-do/models"
 	"github.com/Filimonov-ua-d/to-do/pkg"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/dgrijalva/jwt-go/v4"
 )
 
@@ -24,19 +29,29 @@ type PkgUseCase struct {
 	expireDuration time.Duration
 	hashSalt       string
 	port           string
+	accessKey      string
+	secretKey      string
+	region         string
+	bucket         string
 }
 
 func NewPkgUseCase(PkgRepo pkg.Repository,
 	signingKey []byte,
 	hashSalt string,
-	tokenTTLSeconds time.Duration,
-	port string) *PkgUseCase {
+	tokenTTL time.Duration,
+	port string,
+	ak string, sk string, region string, bucket string,
+) *PkgUseCase {
 	return &PkgUseCase{
 		PkgRepo:        PkgRepo,
 		signingKey:     signingKey,
-		expireDuration: time.Second * tokenTTLSeconds,
+		expireDuration: time.Second * tokenTTL,
 		hashSalt:       hashSalt,
 		port:           port,
+		accessKey:      ak,
+		secretKey:      sk,
+		region:         region,
+		bucket:         bucket,
 	}
 }
 
@@ -141,10 +156,34 @@ func (p *PkgUseCase) DeleteVideo(ctx context.Context, id int) error {
 	return p.PkgRepo.DeleteVideo(ctx, id)
 }
 
-func (p *PkgUseCase) UploadPicture(ctx context.Context, file []byte, userID int) (string, error) {
-	encodedFile := base64.StdEncoding.EncodeToString(file)
+func (p *PkgUseCase) UploadPicture(ctx context.Context, fileBytes []byte, fileExtension string, fileSize, userID int64) (string, error) {
+	sess, err := session.NewSession(&aws.Config{
+		Region:      aws.String(p.region),
+		Credentials: credentials.NewStaticCredentials(p.accessKey, p.secretKey, ""),
+	})
+	if err != nil {
+		return "", fmt.Errorf("error creating session: %w", err)
+	}
 
-	exists, err := p.PkgRepo.ImageExists(ctx, encodedFile, userID)
+	svc := s3.New(sess)
+
+	fileType := fmt.Sprintf("image/%s", fileExtension)
+	key := fmt.Sprintf("uploads/%d.%s", userID, fileExtension)
+
+	_, err = svc.PutObject(&s3.PutObjectInput{
+		Bucket:        aws.String(p.bucket),
+		Key:           aws.String(key),
+		Body:          bytes.NewReader(fileBytes),
+		ContentLength: aws.Int64(fileSize),
+		ContentType:   aws.String(fileType),
+	})
+	if err != nil {
+		log.Fatalf("Не вдалося завантажити файл: %v", err)
+	}
+
+	resUrl := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", p.bucket, p.region, key)
+
+	exists, err := p.PkgRepo.ImageExists(ctx, resUrl, int(userID))
 	if err != nil {
 		return "", err
 	}
@@ -153,9 +192,9 @@ func (p *PkgUseCase) UploadPicture(ctx context.Context, file []byte, userID int)
 		return "", errors.New("error insert file. File already exists")
 	}
 
-	if err = p.PkgRepo.UploadPicture(ctx, encodedFile, userID); err != nil {
+	if err = p.PkgRepo.UploadPicture(ctx, resUrl, int(userID)); err != nil {
 		return "", err
 	}
 
-	return encodedFile, err
+	return resUrl, err
 }

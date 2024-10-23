@@ -60,7 +60,12 @@ func NewApp() *App {
 			[]byte(viper.GetString("SIGNING_KEY")),
 			viper.GetString("HASH_SALT"),
 			viper.GetDuration("TOKEN_TTL"),
-			viper.GetString("PORT")),
+			viper.GetString("PORT"),
+			viper.GetString("AWS_ACCESS_KEY"),
+			viper.GetString("AWS_SECRET_KEY"),
+			viper.GetString("AWS_REGION"),
+			viper.GetString("AWS_BUCKET"),
+		),
 	}
 }
 

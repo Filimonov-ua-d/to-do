@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path/filepath"
 	"strconv"
 
 	"github.com/Filimonov-ua-d/to-do/models"
@@ -159,13 +160,6 @@ func (h *Handler) DeleteVideo(c *gin.Context) {
 }
 
 func (h *Handler) UploadPicture(c *gin.Context) {
-	fileBytes, err := io.ReadAll(c.Request.Body)
-	if err != nil {
-		log.Print(err)
-		c.JSON(http.StatusBadRequest, ErrorResponse{"message": err.Error()})
-		return
-	}
-
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		log.Print(err)
@@ -173,12 +167,37 @@ func (h *Handler) UploadPicture(c *gin.Context) {
 		return
 	}
 
-	if len(fileBytes) > 2*1024*1024 {
+	fileForm, err := c.FormFile("file")
+	if err != nil {
+		log.Print(err)
+		c.JSON(http.StatusBadRequest, ErrorResponse{"message": err.Error()})
+		return
+	}
+
+	fileExtension := filepath.Ext(fileForm.Filename)
+	fileSize := fileForm.Size
+
+	file, err := fileForm.Open()
+	if err != nil {
+		log.Print(err)
+		c.JSON(http.StatusBadRequest, ErrorResponse{"message": err.Error()})
+		return
+	}
+	defer file.Close()
+
+	fileBytes, err := io.ReadAll(file)
+	if err != nil {
+		log.Print(err)
+		c.JSON(http.StatusBadRequest, ErrorResponse{"message": err.Error()})
+		return
+	}
+
+	if fileSize > 2*1024*1024 {
 		c.JSON(http.StatusBadRequest, ErrorResponse{"message": "File size exceeds the limit 2MB"})
 		return
 	}
 
-	encodedFile, err := h.useCase.UploadPicture(c.Request.Context(), fileBytes, id)
+	encodedFile, err := h.useCase.UploadPicture(c.Request.Context(), fileBytes, fileExtension, fileSize, int64(id))
 	if err != nil {
 		log.Print(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
