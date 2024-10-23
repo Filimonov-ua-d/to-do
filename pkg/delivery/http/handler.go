@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/Filimonov-ua-d/to-do/models"
 	"github.com/Filimonov-ua-d/to-do/pkg"
@@ -176,6 +177,7 @@ func (h *Handler) UploadPicture(c *gin.Context) {
 
 	fileExtension := filepath.Ext(fileForm.Filename)
 	fileSize := fileForm.Size
+	filename := filepath.Base(strings.TrimSpace(fileForm.Filename))
 
 	file, err := fileForm.Open()
 	if err != nil {
@@ -197,12 +199,12 @@ func (h *Handler) UploadPicture(c *gin.Context) {
 		return
 	}
 
-	encodedFile, err := h.useCase.UploadPicture(c.Request.Context(), fileBytes, fileExtension, fileSize, int64(id))
+	encodedFile, err := h.useCase.UploadPicture(c.Request.Context(), fileBytes, filename, fileExtension, fileSize, int64(id))
 	if err != nil {
 		log.Print(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, map[string]string{"encoded_file": encodedFile})
+	c.JSON(http.StatusOK, map[string]string{"image_url": encodedFile})
 }
