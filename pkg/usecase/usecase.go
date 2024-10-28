@@ -139,6 +139,11 @@ func (p *PkgUseCase) Register(ctx context.Context, user *models.User) (string, m
 }
 
 func (p *PkgUseCase) UpdateProfile(ctx context.Context, user *models.User) error {
+	pwd := sha1.New()
+	pwd.Write([]byte(user.Password))
+	pwd.Write([]byte(p.hashSalt))
+	user.Password = fmt.Sprintf("%x", pwd.Sum(nil))
+
 	return p.PkgRepo.UpdateProfile(ctx, user)
 }
 
