@@ -8,7 +8,7 @@ import (
 
 type Repository interface {
 	GetUser(ctx context.Context, email, password string) (*models.User, error)
-	Register(ctx context.Context, user models.User) error
+	Register(ctx context.Context, user models.User) (models.User, error)
 	UserExist(ctx context.Context, username string) (bool, error)
 	UpdateProfile(ctx context.Context, user *models.User) error
 	ContactUs(ctx context.Context, contact models.Contact) error

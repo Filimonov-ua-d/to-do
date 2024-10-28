@@ -40,12 +40,13 @@ func (p *PkgRepository) GetUser(ctx context.Context, email, password string) (u 
 
 }
 
-func (p *PkgRepository) Register(ctx context.Context, user models.User) (err error) {
-	_, err = p.DB.ExecContext(ctx, "INSERT INTO users (username, password_hash, email) VALUES ($1, $2, $3)", user.Username, user.Password, user.Email)
+func (p *PkgRepository) Register(ctx context.Context, user models.User) (models.User, error) {
+	err := p.DB.QueryRowContext(ctx, "INSERT INTO users (username, password_hash, email) VALUES ($1, $2, $3) RETURNING id", user.Username, user.Password, user.Email).Scan(&user.Id)
 	if err != nil {
-		return err
+		return models.User{}, err
 	}
-	return nil
+
+	return user, nil
 }
 
 func (p *PkgRepository) UserExist(ctx context.Context, username string) (bool, error) {

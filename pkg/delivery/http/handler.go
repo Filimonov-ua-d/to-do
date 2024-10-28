@@ -51,14 +51,14 @@ func (h *Handler) Register(c *gin.Context) {
 		return
 	}
 
-	token, err := h.useCase.Register(c.Request.Context(), user)
+	token, res, err := h.useCase.Register(c.Request.Context(), user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{"message": err.Error()})
 		return
 	}
 
-	user.Password = ""
-	c.JSON(http.StatusOK, LoginResponse{Token: token, User: *user})
+	res.Password = ""
+	c.JSON(http.StatusOK, LoginResponse{Token: token, User: res})
 }
 
 func (h *Handler) UpdateProfile(c *gin.Context) {

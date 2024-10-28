@@ -100,7 +100,7 @@ func (p *PkgUseCase) ParseToken(ctx context.Context, accessToken string) (*model
 	return nil, pkg.ErrInvalidAccessToken
 }
 
-func (p *PkgUseCase) Register(ctx context.Context, user *models.User) (string, error) {
+func (p *PkgUseCase) Register(ctx context.Context, user *models.User) (string, models.User, error) {
 
 	pwd := sha1.New()
 	pwd.Write([]byte(user.Password))
@@ -109,16 +109,16 @@ func (p *PkgUseCase) Register(ctx context.Context, user *models.User) (string, e
 
 	exists, err := p.PkgRepo.UserExist(ctx, user.Username)
 	if err != nil {
-		return "", err
+		return "", models.User{}, err
 	}
 
 	if exists {
-		return "", pkg.ErrUserAlreadyExists
+		return "", models.User{}, pkg.ErrUserAlreadyExists
 	}
 
-	err = p.PkgRepo.Register(ctx, *user)
+	res, err := p.PkgRepo.Register(ctx, *user)
 	if err != nil {
-		return "", err
+		return "", models.User{}, err
 	}
 
 	claims := AuthClaims{
@@ -130,7 +130,12 @@ func (p *PkgUseCase) Register(ctx context.Context, user *models.User) (string, e
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	return token.SignedString(p.signingKey)
+	tokenRes, err := token.SignedString(p.signingKey)
+	if err != nil {
+		return "", models.User{}, err
+	}
+
+	return tokenRes, res, nil
 }
 
 func (p *PkgUseCase) UpdateProfile(ctx context.Context, user *models.User) error {

@@ -10,7 +10,7 @@ const CtxUserKey = "user"
 
 type UseCase interface {
 	Login(ctx context.Context, password, email string) (*models.User, string, error)
-	Register(ctx context.Context, user *models.User) (string, error)
+	Register(ctx context.Context, user *models.User) (string, models.User, error)
 	ParseToken(ctx context.Context, accessToken string) (*models.User, error)
 	UpdateProfile(ctx context.Context, user *models.User) error
 	ContactUs(ctx context.Context, contact models.Contact) error
